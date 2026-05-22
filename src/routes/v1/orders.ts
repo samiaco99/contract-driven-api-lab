@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import {
@@ -122,10 +123,7 @@ export const orderRoutes: FastifyPluginAsyncTypebox<OrderRoutesOptions> = async 
         security: bearerAuth,
         params: OrderParamsSchema,
         response: {
-          204: {
-            type: 'null',
-            description: 'Order deleted successfully',
-          },
+          204: Type.Null({ description: 'Order deleted successfully' }),
           400: ValidationErrorSchema,
           401: ErrorResponseSchema,
           403: ErrorResponseSchema,

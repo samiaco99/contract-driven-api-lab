@@ -54,7 +54,19 @@ jobs:
             sleep 1
           done
 
+      - name: Fetch Schemathesis auth token
+        run: |
+          TOKEN=$(curl -sf -X POST http://localhost:3000/auth/token \
+            -H 'Content-Type: application/json' \
+            -d '{"userId":"ci-schemathesis","role":"admin"}' \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
+          echo "SCHEMATHESIS_TOKEN=$TOKEN" >> $GITHUB_ENV
+
       - name: Run Schemathesis contract fuzzing
-        run: schemathesis run http://localhost:3000/docs/json --checks all
+        run: >
+          schemathesis run http://localhost:3000/docs/json
+          --checks all
+          --method GET --method POST --method PATCH --method DELETE
+          --header "Authorization: Bearer $SCHEMATHESIS_TOKEN"
         env:
           NODE_ENV: test
