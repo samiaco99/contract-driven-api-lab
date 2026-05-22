@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import Fastify, { type FastifyServerOptions } from 'fastify';
+import buildAjvCompiler from '@fastify/ajv-compiler';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import jwt from '@fastify/jwt';
@@ -23,6 +24,14 @@ import {
 
 const DEFAULT_BODY_LIMIT_BYTES = 1_048_576; // 1 MiB
 
+// Two AJV instances: body uses coerceTypes:false (null must not coerce to 0),
+// everything else (querystring, params) keeps coerceTypes:'array' for string→int coercion.
+const _ajvBase = { useDefaults: true, removeAdditional: false, addUsedSchema: false, allErrors: false } as const;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _bodyCompile = (buildAjvCompiler as any)()({}, { customOptions: { ..._ajvBase, coerceTypes: false } }) as (opts: { schema: unknown }) => (data: unknown) => boolean;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _otherCompile = (buildAjvCompiler as any)()({}, { customOptions: { ..._ajvBase, coerceTypes: 'array' } }) as (opts: { schema: unknown }) => (data: unknown) => boolean;
+
 export interface BuildAppOptions {
   repository?: OrderRepository;
   logger?: FastifyServerOptions['logger'];
@@ -44,12 +53,11 @@ export async function buildApp(options: BuildAppOptions = {}) {
     logger: options.logger ?? true,
     bodyLimit: options.bodyLimit ?? DEFAULT_BODY_LIMIT_BYTES,
     requestIdHeader: 'x-request-id',
-    ajv: {
-      customOptions: {
-        removeAdditional: false,
-      },
-    },
   });
+
+  app.setValidatorCompiler(({ schema, httpPart }) =>
+    httpPart === 'body' ? _bodyCompile({ schema }) : _otherCompile({ schema })
+  );
 
   registerRequestContext(app);
   await registerHardening(app, options.hardening);
@@ -128,6 +136,28 @@ export async function buildApp(options: BuildAppOptions = {}) {
   await app.register(orderRoutes, {
     prefix: '/v1',
     orderService,
+  });
+
+  app.setNotFoundHandler((request, reply) => {
+    const pathname = request.url.split('?')[0];
+    const knownMethods = ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT'] as const;
+    const pathHasRoute = knownMethods.some(method => app.hasRoute({ method, url: pathname }));
+
+    if (pathHasRoute) {
+      return reply.status(405).send({
+        statusCode: 405,
+        error: 'Method Not Allowed',
+        message: `Method ${request.method} is not allowed for this route`,
+        requestId: request.id,
+      });
+    }
+
+    return reply.status(404).send({
+      statusCode: 404,
+      error: 'Not Found',
+      message: `Route ${request.method}:${request.url} not found`,
+      requestId: request.id,
+    });
   });
 
   app.addHook('onClose', async () => {
