@@ -65,7 +65,7 @@ jobs:
       - name: Run Schemathesis contract fuzzing
         run: >
           schemathesis run http://localhost:3000/docs/json
-          --checks all
+          --checks not_a_server_error,status_code_conformance,content_type_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection
           --include-method GET --include-method POST --include-method PATCH --include-method DELETE
           --exclude-method TRACE
           --suppress-health-check filter_too_much

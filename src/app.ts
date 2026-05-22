@@ -24,6 +24,32 @@ import {
 
 const DEFAULT_BODY_LIMIT_BYTES = 1_048_576; // 1 MiB
 
+// Recursively converts anyOf[{type,enum:[X]},{type,enum:[Y]},...] → {type,enum:[X,Y,...]}
+// so that Schemathesis constrains its generated values to the valid set instead of
+// treating the field as an unconstrained string.  Only affects OpenAPI export output;
+// AJV still validates against the original TypeBox schemas at runtime.
+function flattenSingleValueAnyOf(node: unknown): unknown {
+  if (node === null || typeof node !== 'object') return node;
+  if (Array.isArray(node)) return node.map(flattenSingleValueAnyOf);
+  const obj = node as Record<string, unknown>;
+  if (Array.isArray(obj.anyOf)) {
+    const branches = obj.anyOf as Record<string, unknown>[];
+    const isSingle = (b: Record<string, unknown>) =>
+      Array.isArray(b.enum) && (b.enum as unknown[]).length === 1;
+    if (branches.length > 0 && branches.every(isSingle)) {
+      const firstType = branches[0]!.type;
+      const sameType = firstType !== undefined && branches.every(b => b.type === firstType);
+      return {
+        ...(sameType ? { type: firstType } : {}),
+        enum: branches.map(b => (b.enum as unknown[])[0]),
+      };
+    }
+  }
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) result[k] = flattenSingleValueAnyOf(v);
+  return result;
+}
+
 // Two AJV instances: body uses coerceTypes:false (null must not coerce to 0),
 // everything else (querystring, params) keeps coerceTypes:'array' for string→int coercion.
 const _ajvBase = { useDefaults: true, removeAdditional: false, addUsedSchema: false, allErrors: false } as const;
@@ -85,6 +111,14 @@ export async function buildApp(options: BuildAppOptions = {}) {
           },
         },
       },
+    },
+    // TypeBox emits anyOf[{enum:["X"]},{enum:["Y"]}] for union-of-literals.
+    // Schemathesis doesn't constrain generation from that pattern, so its fuzzer
+    // produces arbitrary strings and mostly gets 400s (triggering a false
+    // "schema validation mismatch"). Flatten to a proper enum at export time only;
+    // AJV still validates against the original TypeBox schemas at runtime.
+    transform({ schema, url }) {
+      return { schema: flattenSingleValueAnyOf(schema) as typeof schema, url };
     },
   });
 
