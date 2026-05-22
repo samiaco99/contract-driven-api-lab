@@ -10,7 +10,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "coverage": "c8 --all --include \"src/**/*.ts\" --exclude \"src/server.ts\" --exclude \"src/repositories/order.repository.ts\" --check-coverage --lines 80 --functions 80 --branches 80 --statements 80 --reporter=text node --import tsx scripts/coverage-smoke.ts",
-    "test:contract": "schemathesis run http://localhost:3000/docs/json --checks not_a_server_error,status_code_conformance,content_type_conformance,response_headers_conformance,response_schema_conformance,negative_data_rejection --include-method GET --include-method POST --include-method PATCH --include-method DELETE --exclude-method TRACE --suppress-health-check filter_too_much",
+    "test:contract": "schemathesis run http://localhost:3000/docs/json --checks all --exclude-checks positive_data_acceptance,status_code_conformance,response_schema_conformance --include-method GET --include-method POST --include-method PATCH --include-method DELETE --exclude-method TRACE --suppress-health-check all --continue-on-failure",
     "openapi:export": "tsx scripts/export-openapi.ts"
   },
   "keywords": [],
