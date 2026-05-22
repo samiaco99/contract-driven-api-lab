@@ -2,12 +2,14 @@ import { Type, type Static } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 
 const EnvSchema = Type.Object({
+  NODE_ENV: Type.Optional(Type.String()),
   DATABASE_PATH: Type.String({ default: './orders.db' }),
   PORT: Type.Integer({ minimum: 1, maximum: 65535, default: 3000 }),
   JWT_SECRET: Type.String({ minLength: 32 }),
   JWT_EXPIRES_IN: Type.String({ default: '1h' }),
   BODY_LIMIT_BYTES: Type.Optional(Type.Integer({ minimum: 1 })),
   CORS_ORIGINS: Type.Optional(Type.String()),
+  RATE_LIMIT_ENABLED: Type.Optional(Type.Boolean()),
   RATE_LIMIT_MAX: Type.Optional(Type.Integer({ minimum: 1 })),
   RATE_LIMIT_WINDOW_MS: Type.Optional(Type.Integer({ minimum: 1 })),
 });
@@ -22,6 +24,7 @@ export interface Config {
   bodyLimitBytes: number | undefined;
   corsOrigins: string[];
   rateLimit: {
+    enabled: boolean;
     max: number | undefined;
     windowMs: number | undefined;
   };
@@ -55,9 +58,10 @@ export function parseConfig(
           .filter(Boolean)
       : [],
     rateLimit: {
+      enabled:
+        parsed.NODE_ENV !== 'test' && parsed.RATE_LIMIT_ENABLED !== false,
       max: parsed.RATE_LIMIT_MAX,
       windowMs: parsed.RATE_LIMIT_WINDOW_MS,
     },
   };
 }
-

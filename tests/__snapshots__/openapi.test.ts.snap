@@ -298,6 +298,40 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
             },
             "description": "Default Response",
           },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
           "401": {
             "content": {
               "application/json": {
@@ -554,6 +588,40 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
           "204": {
             "description": "Order deleted successfully",
           },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
           "401": {
             "content": {
               "application/json": {
@@ -708,6 +776,40 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
                     "userId",
                     "status",
                     "total",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
                   ],
                   "type": "object",
                 },

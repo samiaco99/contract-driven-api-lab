@@ -13,6 +13,7 @@ describe('parseConfig', () => {
     expect(config.jwtExpiresIn).toBe('1h');
     expect(config.bodyLimitBytes).toBeUndefined();
     expect(config.corsOrigins).toEqual([]);
+    expect(config.rateLimit.enabled).toBe(true);
     expect(config.rateLimit.max).toBeUndefined();
     expect(config.rateLimit.windowMs).toBeUndefined();
   });
@@ -25,6 +26,7 @@ describe('parseConfig', () => {
       JWT_EXPIRES_IN: '15m',
       BODY_LIMIT_BYTES: '2097152',
       CORS_ORIGINS: 'https://a.example, https://b.example',
+      RATE_LIMIT_ENABLED: 'true',
       RATE_LIMIT_MAX: '200',
       RATE_LIMIT_WINDOW_MS: '30000',
     });
@@ -38,8 +40,24 @@ describe('parseConfig', () => {
       'https://a.example',
       'https://b.example',
     ]);
+    expect(config.rateLimit.enabled).toBe(true);
     expect(config.rateLimit.max).toBe(200);
     expect(config.rateLimit.windowMs).toBe(30000);
+  });
+
+  it('disables rate limiting in test environment', () => {
+    const config = parseConfig({ JWT_SECRET, NODE_ENV: 'test' });
+
+    expect(config.rateLimit.enabled).toBe(false);
+  });
+
+  it('disables rate limiting when RATE_LIMIT_ENABLED is false', () => {
+    const config = parseConfig({
+      JWT_SECRET,
+      RATE_LIMIT_ENABLED: 'false',
+    });
+
+    expect(config.rateLimit.enabled).toBe(false);
   });
 
   it('throws when JWT_SECRET is missing', () => {

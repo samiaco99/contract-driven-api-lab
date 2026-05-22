@@ -174,6 +174,32 @@ describe('Operational hardening', () => {
     expect(auth2.statusCode).toBe(200);
   });
 
+  it('can disable rate limiting for test and CI runs', async () => {
+    const jwtSecret = randomBytes(32).toString('hex');
+    app = await buildApp({
+      logger: false,
+      jwtSecret,
+      hardening: {
+        rateLimit: false,
+      },
+    });
+
+    const { token } = (
+      await app.inject({
+        method: 'POST',
+        url: '/auth/token',
+        payload: { userId: 'test', role: 'admin' },
+      })
+    ).json<{ token: string }>();
+    const authHeader = { authorization: `Bearer ${token}` };
+
+    const first = await app.inject({ method: 'GET', url: '/v1/orders', headers: authHeader });
+    const second = await app.inject({ method: 'GET', url: '/v1/orders', headers: authHeader });
+
+    expect(first.statusCode).toBe(200);
+    expect(second.statusCode).toBe(200);
+  });
+
   it('returns 503 when readiness dependency checks fail', async () => {
     app = await buildApp({
       logger: false,

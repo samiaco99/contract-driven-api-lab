@@ -18,7 +18,9 @@ const app = await buildApp({
   bodyLimit: config.bodyLimitBytes,
   hardening: {
     corsOrigins: config.corsOrigins,
-    ...(max !== undefined && windowMs !== undefined
+    ...(!config.rateLimit.enabled
+      ? { rateLimit: false }
+      : max !== undefined && windowMs !== undefined
       ? { rateLimit: { max, windowMs } }
       : {}),
   },

@@ -45,6 +45,7 @@ jobs:
       - name: Start server
         run: npm run dev &
         env:
+          NODE_ENV: test
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-local-jwt-secret-at-least-32-characters' }}
 
       - name: Wait for server to be ready
@@ -55,3 +56,5 @@ jobs:
 
       - name: Run Schemathesis contract fuzzing
         run: schemathesis run http://localhost:3000/docs/json --checks all
+        env:
+          NODE_ENV: test

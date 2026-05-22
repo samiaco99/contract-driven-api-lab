@@ -5,10 +5,12 @@ import rateLimit from '@fastify/rate-limit';
 
 export interface HardeningOptions {
   corsOrigins?: string[];
-  rateLimit?: {
-    max: number;
-    windowMs: number;
-  };
+  rateLimit?:
+    | false
+    | {
+        max: number;
+        windowMs: number;
+      };
 }
 
 const DEFAULT_RATE_LIMIT = { max: 100, windowMs: 60_000 };
@@ -53,6 +55,10 @@ export async function registerHardening(
     methods: ['GET', 'POST', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['content-type', 'x-request-id', 'authorization'],
   });
+
+  if (limiter === false) {
+    return;
+  }
 
   await app.register(rateLimit, {
     max: limiter.max,

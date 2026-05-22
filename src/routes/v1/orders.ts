@@ -36,6 +36,7 @@ export const orderRoutes: FastifyPluginAsyncTypebox<OrderRoutesOptions> = async 
         querystring: PaginationQuerySchema,
         response: {
           200: PaginatedOrdersSchema,
+          400: ValidationErrorSchema,
           401: ErrorResponseSchema,
         },
       },
@@ -54,6 +55,7 @@ export const orderRoutes: FastifyPluginAsyncTypebox<OrderRoutesOptions> = async 
         params: OrderParamsSchema,
         response: {
           200: OrderSchema,
+          400: ValidationErrorSchema,
           401: ErrorResponseSchema,
           404: ErrorResponseSchema,
         },
@@ -124,6 +126,7 @@ export const orderRoutes: FastifyPluginAsyncTypebox<OrderRoutesOptions> = async 
             type: 'null',
             description: 'Order deleted successfully',
           },
+          400: ValidationErrorSchema,
           401: ErrorResponseSchema,
           403: ErrorResponseSchema,
           404: ErrorResponseSchema,
