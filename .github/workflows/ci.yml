@@ -67,6 +67,7 @@ jobs:
           schemathesis run http://localhost:3000/docs/json
           --checks all
           --include-method GET --include-method POST --include-method PATCH --include-method DELETE
+          --exclude-method TRACE
           --header "Authorization: Bearer $SCHEMATHESIS_TOKEN"
         env:
           NODE_ENV: test

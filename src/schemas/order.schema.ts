@@ -31,10 +31,13 @@ export const CreateOrderSchema = Type.Object(
 );
 export type CreateOrderInput = Static<typeof CreateOrderSchema>;
 
-export const PaginationQuerySchema = Type.Object({
-  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100, default: 20 })),
-  cursor: Type.Optional(Type.Integer({ minimum: 0, default: 0 })),
-});
+export const PaginationQuerySchema = Type.Object(
+  {
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100, default: 20 })),
+    cursor: Type.Optional(Type.Integer({ minimum: 0, default: 0 })),
+  },
+  { additionalProperties: false }
+);
 export type PaginationQuery = Static<typeof PaginationQuerySchema>;
 
 export const PaginatedOrdersSchema = Type.Object({
