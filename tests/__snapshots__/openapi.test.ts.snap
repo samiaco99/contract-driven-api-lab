@@ -1,0 +1,1051 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
+{
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http",
+      },
+    },
+  },
+  "info": {
+    "description": "A small Fastify API focused on schemas, validation, and contract-driven development.",
+    "title": "Contract Driven API Lab",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/auth/token": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "role": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "admin",
+                        ],
+                        "type": "string",
+                      },
+                      {
+                        "enum": [
+                          "viewer",
+                        ],
+                        "type": "string",
+                      },
+                    ],
+                  },
+                  "userId": {
+                    "minLength": 1,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "userId",
+                  "role",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "token",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+      },
+    },
+    "/health/live": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "ok",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "status",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+      },
+    },
+    "/health/ready": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "ok",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "status",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+      },
+    },
+    "/v1/orders": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+            },
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "type": "integer",
+            },
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "minimum": 1,
+                            "type": "integer",
+                          },
+                          "status": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "PENDING",
+                                ],
+                                "type": "string",
+                              },
+                              {
+                                "enum": [
+                                  "PAID",
+                                ],
+                                "type": "string",
+                              },
+                              {
+                                "enum": [
+                                  "CANCELLED",
+                                ],
+                                "type": "string",
+                              },
+                            ],
+                          },
+                          "total": {
+                            "minimum": 0,
+                            "type": "number",
+                          },
+                          "userId": {
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "id",
+                          "userId",
+                          "status",
+                          "total",
+                        ],
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "minimum": 1,
+                          "type": "integer",
+                        },
+                        {
+                          "type": "null",
+                        },
+                      ],
+                    },
+                  },
+                  "required": [
+                    "data",
+                    "nextCursor",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "PENDING",
+                        ],
+                        "type": "string",
+                      },
+                      {
+                        "enum": [
+                          "PAID",
+                        ],
+                        "type": "string",
+                      },
+                      {
+                        "enum": [
+                          "CANCELLED",
+                        ],
+                        "type": "string",
+                      },
+                    ],
+                  },
+                  "total": {
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "userId": {
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "userId",
+                  "status",
+                  "total",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "minimum": 1,
+                      "type": "integer",
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "PENDING",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "PAID",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "CANCELLED",
+                          ],
+                          "type": "string",
+                        },
+                      ],
+                    },
+                    "total": {
+                      "minimum": 0,
+                      "type": "number",
+                    },
+                    "userId": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "status",
+                    "total",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+      },
+    },
+    "/v1/orders/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+            },
+          },
+        ],
+        "responses": {
+          "204": {
+            "description": "Order deleted successfully",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+            },
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "minimum": 1,
+                      "type": "integer",
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "PENDING",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "PAID",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "CANCELLED",
+                          ],
+                          "type": "string",
+                        },
+                      ],
+                    },
+                    "total": {
+                      "minimum": 0,
+                      "type": "number",
+                    },
+                    "userId": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "status",
+                    "total",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "PENDING",
+                        ],
+                        "type": "string",
+                      },
+                      {
+                        "enum": [
+                          "PAID",
+                        ],
+                        "type": "string",
+                      },
+                      {
+                        "enum": [
+                          "CANCELLED",
+                        ],
+                        "type": "string",
+                      },
+                    ],
+                  },
+                },
+                "required": [
+                  "status",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "minimum": 1,
+                      "type": "integer",
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "PENDING",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "PAID",
+                          ],
+                          "type": "string",
+                        },
+                        {
+                          "enum": [
+                            "CANCELLED",
+                          ],
+                          "type": "string",
+                        },
+                      ],
+                    },
+                    "total": {
+                      "minimum": 0,
+                      "type": "number",
+                    },
+                    "userId": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "status",
+                    "total",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                    },
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+      },
+    },
+  },
+}
+`;

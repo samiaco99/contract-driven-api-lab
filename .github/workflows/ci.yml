@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:ci
+      - run: npm run coverage
+      - run: npm run openapi:export
+      - run: git diff --exit-code openapi.json
+      - run: npm run build
+
+  schemathesis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install schemathesis
+
+      - name: Start server
+        run: npm run dev &
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-local-jwt-secret-at-least-32-characters' }}
+
+      - name: Wait for server to be ready
+        run: |
+          until curl -sf http://localhost:3000/health/live; do
+            sleep 1
+          done
+
+      - name: Run Schemathesis contract fuzzing
+        run: schemathesis run http://localhost:3000/docs/json --checks all
