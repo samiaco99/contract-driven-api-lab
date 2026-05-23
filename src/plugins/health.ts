@@ -6,7 +6,7 @@ export interface HealthPluginOptions {
   repository: OrderRepository;
 }
 
-export const healthPlugin: FastifyPluginAsyncTypebox<HealthPluginOptions> = async (app, opts) => {
+const healthPlugin: FastifyPluginAsyncTypebox<HealthPluginOptions> = async (app, opts) => {
   const { repository } = opts;
 
   app.get(
@@ -48,3 +48,5 @@ export const healthPlugin: FastifyPluginAsyncTypebox<HealthPluginOptions> = asyn
     }
   );
 };
+
+export default healthPlugin;

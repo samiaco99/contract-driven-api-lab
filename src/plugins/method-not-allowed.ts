@@ -1,6 +1,7 @@
-import type { FastifyInstance } from 'fastify';
+import fp from 'fastify-plugin';
+import type { FastifyPluginAsync } from 'fastify';
 
-export function registerMethodNotAllowed(app: FastifyInstance): void {
+const methodNotAllowedPlugin: FastifyPluginAsync = async (app) => {
   app.setNotFoundHandler((request, reply) => {
     const pathname = request.url.split('?')[0];
     const knownMethods = ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT'] as const;
@@ -39,4 +40,6 @@ export function registerMethodNotAllowed(app: FastifyInstance): void {
       requestId: request.id,
     });
   });
-}
+};
+
+export default fp(methodNotAllowedPlugin);

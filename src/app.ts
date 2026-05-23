@@ -14,8 +14,8 @@ import { orderRoutes } from './routes/v1/orders.js';
 import { authRoutes } from './auth/auth.routes.js';
 import { registerHardening, type HardeningOptions } from './plugins/hardening.js';
 import { registerRequestContext } from './plugins/request-context.js';
-import { healthPlugin } from './plugins/health.js';
-import { registerMethodNotAllowed } from './plugins/method-not-allowed.js';
+import healthPlugin from './plugins/health.js';
+import methodNotAllowedPlugin from './plugins/method-not-allowed.js';
 import { swaggerTransform } from './utils/swagger-transform.js';
 
 const DEFAULT_BODY_LIMIT_BYTES = 1_048_576; // 1 MiB
@@ -93,7 +93,7 @@ export async function buildApp(options: BuildAppOptions = {}) {
   await app.register(authRoutes, { prefix: '/auth' });
   await app.register(orderRoutes, { prefix: '/v1', orderService });
 
-  registerMethodNotAllowed(app);
+  await app.register(methodNotAllowedPlugin);
 
   app.addHook('onClose', async () => {
     if (typeof repository.close === 'function') {
