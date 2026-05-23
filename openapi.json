@@ -747,25 +747,11 @@
                 ],
                 "properties": {
                   "status": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "PENDING"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "PAID"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "CANCELLED"
-                        ]
-                      }
+                    "type": "string",
+                    "enum": [
+                      "PENDING",
+                      "PAID",
+                      "CANCELLED"
                     ]
                   }
                 }

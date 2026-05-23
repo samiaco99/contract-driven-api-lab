@@ -903,26 +903,12 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
                 "additionalProperties": false,
                 "properties": {
                   "status": {
-                    "anyOf": [
-                      {
-                        "enum": [
-                          "PENDING",
-                        ],
-                        "type": "string",
-                      },
-                      {
-                        "enum": [
-                          "PAID",
-                        ],
-                        "type": "string",
-                      },
-                      {
-                        "enum": [
-                          "CANCELLED",
-                        ],
-                        "type": "string",
-                      },
+                    "enum": [
+                      "PENDING",
+                      "PAID",
+                      "CANCELLED",
                     ],
+                    "type": "string",
                   },
                 },
                 "required": [

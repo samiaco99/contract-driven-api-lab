@@ -6,6 +6,7 @@ import {
   ErrorResponseSchema,
   OrderParamsSchema,
   OrderSchema,
+  OrderStatus,
   PaginatedOrdersSchema,
   PaginationQuerySchema,
   PatchOrderBodySchema,
@@ -109,7 +110,7 @@ export const orderRoutes: FastifyPluginAsyncTypebox<OrderRoutesOptions> = async 
     async (request) => {
       return orderService.updateOrderStatus(
         request.params.id,
-        request.body.status,
+        request.body.status as OrderStatus,
         request.user.sub,
         request.log
       );
