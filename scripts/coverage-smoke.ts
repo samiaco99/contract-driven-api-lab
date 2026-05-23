@@ -192,6 +192,33 @@ async function exerciseAuth() {
   const app = await buildApp({ logger: false });
 
   try {
+    // seedUsers is idempotent — covers the _seeded early-return branch
+    await seedUsers(1);
+
+    // Wrong password → 401 (covers auth.routes.ts 24-30, user-store.ts verifyUser false branch)
+    assert.equal(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/auth/token',
+          payload: { userId: 'alice', password: 'wrong-password' },
+        })
+      ).statusCode,
+      401
+    );
+
+    // Unknown user → 401 (covers user-store.ts line 32-34)
+    assert.equal(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/auth/token',
+          payload: { userId: 'nobody', password: 'any-password' },
+        })
+      ).statusCode,
+      401
+    );
+
     // Missing token → 401
     assert.equal(
       (await app.inject({ method: 'GET', url: '/v1/orders' })).statusCode,
