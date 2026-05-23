@@ -111,7 +111,8 @@ describe('Operational hardening', () => {
       jwtSecret,
       hardening: {
         rateLimit: {
-          max: 1,
+          // max: 2 because the /auth/token fetch is now counted against the limit
+          max: 2,
           windowMs: 60_000,
         },
       },
@@ -121,7 +122,7 @@ describe('Operational hardening', () => {
       await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'test', role: 'admin' },
+        payload: { userId: 'alice', password: 'alice-password' },
       })
     ).json<{ token: string }>();
     const authHeader = { authorization: `Bearer ${token}` };
@@ -138,7 +139,7 @@ describe('Operational hardening', () => {
     });
   });
 
-  it('bypasses rate limiting for health, docs, and auth endpoints', async () => {
+  it('bypasses rate limiting for health and docs endpoints', async () => {
     app = await buildApp({
       logger: false,
       hardening: {
@@ -154,24 +155,12 @@ describe('Operational hardening', () => {
     const ready1 = await app.inject({ method: 'GET', url: '/health/ready' });
     const ready2 = await app.inject({ method: 'GET', url: '/health/ready' });
     const docs = await app.inject({ method: 'GET', url: '/docs/json' });
-    const auth1 = await app.inject({
-      method: 'POST',
-      url: '/auth/token',
-      payload: { userId: 'x', role: 'admin' },
-    });
-    const auth2 = await app.inject({
-      method: 'POST',
-      url: '/auth/token',
-      payload: { userId: 'y', role: 'viewer' },
-    });
 
     expect(live1.statusCode).toBe(200);
     expect(live2.statusCode).toBe(200);
     expect(ready1.statusCode).toBe(200);
     expect(ready2.statusCode).toBe(200);
     expect(docs.statusCode).toBe(200);
-    expect(auth1.statusCode).toBe(200);
-    expect(auth2.statusCode).toBe(200);
   });
 
   it('can disable rate limiting for test and CI runs', async () => {
@@ -188,7 +177,7 @@ describe('Operational hardening', () => {
       await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'test', role: 'admin' },
+        payload: { userId: 'alice', password: 'alice-password' },
       })
     ).json<{ token: string }>();
     const authHeader = { authorization: `Bearer ${token}` };

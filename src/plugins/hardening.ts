@@ -17,11 +17,7 @@ const DEFAULT_RATE_LIMIT = { max: 100, windowMs: 60_000 };
 
 function isRateLimitBypassPath(url: string): boolean {
   const path = url.split('?', 1)[0];
-  return (
-    path.startsWith('/health') ||
-    path.startsWith('/docs') ||
-    path.startsWith('/auth')
-  );
+  return path.startsWith('/health') || path.startsWith('/docs');
 }
 
 export async function registerHardening(

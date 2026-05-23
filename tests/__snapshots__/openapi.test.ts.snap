@@ -27,21 +27,9 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
               "schema": {
                 "additionalProperties": false,
                 "properties": {
-                  "role": {
-                    "anyOf": [
-                      {
-                        "enum": [
-                          "admin",
-                        ],
-                        "type": "string",
-                      },
-                      {
-                        "enum": [
-                          "viewer",
-                        ],
-                        "type": "string",
-                      },
-                    ],
+                  "password": {
+                    "minLength": 1,
+                    "type": "string",
                   },
                   "userId": {
                     "minLength": 1,
@@ -50,7 +38,7 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
                 },
                 "required": [
                   "userId",
-                  "role",
+                  "password",
                 ],
                 "type": "object",
               },
@@ -101,6 +89,36 @@ exports[`OpenAPI contract > matches the generated OpenAPI snapshot 1`] = `
                   "required": [
                     "statusCode",
                     "code",
+                    "error",
+                    "message",
+                    "requestId",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Default Response",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestId": {
+                      "type": "string",
+                    },
+                    "statusCode": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "statusCode",
                     "error",
                     "message",
                     "requestId",

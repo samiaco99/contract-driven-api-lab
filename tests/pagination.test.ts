@@ -28,14 +28,14 @@ describe('Cursor-based pagination on GET /v1/orders', () => {
       await issuer.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'alice', role: 'admin' },
+        payload: { userId: 'alice', password: 'alice-password' },
       })
     ).json<{ token: string }>().token;
     viewerToken = (
       await issuer.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'bob', role: 'viewer' },
+        payload: { userId: 'bob', password: 'bob-password' },
       })
     ).json<{ token: string }>().token;
     await issuer.close();

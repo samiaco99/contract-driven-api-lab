@@ -17,11 +17,11 @@ describe('JWT authentication', () => {
   });
 
   describe('POST /auth/token', () => {
-    it('returns 200 with a token for a valid admin request', async () => {
+    it('returns 200 with a token for valid admin credentials', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'alice', role: 'admin' },
+        payload: { userId: 'alice', password: 'alice-password' },
       });
 
       expect(response.statusCode).toBe(200);
@@ -30,28 +30,59 @@ describe('JWT authentication', () => {
       expect(body.token.split('.').length).toBe(3); // valid JWT structure
     });
 
-    it('returns 200 with a token for a valid viewer request', async () => {
+    it('returns 200 with a token for valid viewer credentials', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'bob', role: 'viewer' },
+        payload: { userId: 'bob', password: 'bob-password' },
       });
 
       expect(response.statusCode).toBe(200);
       expect(typeof response.json().token).toBe('string');
     });
 
+    it('returns 401 for a wrong password', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/token',
+        payload: { userId: 'alice', password: 'wrong-password' },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toMatchObject({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'Invalid credentials',
+        requestId: expect.any(String),
+      });
+    });
+
+    it('returns 401 for an unknown userId', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/token',
+        payload: { userId: 'nobody', password: 'any-password' },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json()).toMatchObject({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'Invalid credentials',
+      });
+    });
+
     it('returns 400 when userId is missing', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { role: 'admin' },
+        payload: { password: 'alice-password' },
       });
 
       expect(response.statusCode).toBe(400);
     });
 
-    it('returns 400 when role is missing', async () => {
+    it('returns 400 when password is missing', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
@@ -61,24 +92,29 @@ describe('JWT authentication', () => {
       expect(response.statusCode).toBe(400);
     });
 
-    it('returns 400 when role is not a valid enum value', async () => {
+    it('returns 400 when extra fields are sent', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'alice', role: 'superadmin' },
+        payload: { userId: 'alice', password: 'alice-password', sneaky: 'value' },
       });
 
       expect(response.statusCode).toBe(400);
     });
 
-    it('returns 400 when extra fields are sent', async () => {
+    it('role comes from the user store, not from the request', async () => {
+      // alice is admin in the store — the caller cannot override this
       const response = await app.inject({
         method: 'POST',
         url: '/auth/token',
-        payload: { userId: 'alice', role: 'admin', sneaky: 'value' },
+        payload: { userId: 'alice', password: 'alice-password' },
       });
 
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(200);
+      const { token } = response.json<{ token: string }>();
+      const payload = app.jwt.decode<{ sub: string; role: string }>(token);
+      expect(payload?.role).toBe('admin');
+      expect(payload?.sub).toBe('alice');
     });
   });
 
@@ -111,7 +147,6 @@ describe('JWT authentication', () => {
     });
 
     it('returns 401 with "Token expired" for an expired token', async () => {
-      // Sign a token that is already expired
       const expiredToken = app.jwt.sign(
         { sub: 'alice', role: 'admin' as const },
         { expiresIn: -10 }
@@ -136,7 +171,7 @@ describe('JWT authentication', () => {
         await app.inject({
           method: 'POST',
           url: '/auth/token',
-          payload: { userId: 'alice', role: 'admin' },
+          payload: { userId: 'alice', password: 'alice-password' },
         })
       ).json<{ token: string }>();
 
@@ -166,7 +201,7 @@ describe('JWT authentication', () => {
         await app.inject({
           method: 'POST',
           url: '/auth/token',
-          payload: { userId: 'alice', role: 'admin' },
+          payload: { userId: 'alice', password: 'alice-password' },
         })
       ).json<{ token: string }>();
 
@@ -185,7 +220,7 @@ describe('JWT authentication', () => {
         await app.inject({
           method: 'POST',
           url: '/auth/token',
-          payload: { userId: 'bob', role: 'viewer' },
+          payload: { userId: 'bob', password: 'bob-password' },
         })
       ).json<{ token: string }>();
 
@@ -209,7 +244,7 @@ describe('JWT authentication', () => {
         await app.inject({
           method: 'POST',
           url: '/auth/token',
-          payload: { userId: 'bob', role: 'viewer' },
+          payload: { userId: 'bob', password: 'bob-password' },
         })
       ).json<{ token: string }>();
 
@@ -228,7 +263,7 @@ describe('JWT authentication', () => {
         await app.inject({
           method: 'POST',
           url: '/auth/token',
-          payload: { userId: 'bob', role: 'viewer' },
+          payload: { userId: 'bob', password: 'bob-password' },
         })
       ).json<{ token: string }>();
 

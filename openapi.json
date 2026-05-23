@@ -111,28 +111,16 @@
                 "type": "object",
                 "required": [
                   "userId",
-                  "role"
+                  "password"
                 ],
                 "properties": {
                   "userId": {
                     "minLength": 1,
                     "type": "string"
                   },
-                  "role": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "admin"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "viewer"
-                        ]
-                      }
-                    ]
+                  "password": {
+                    "minLength": 1,
+                    "type": "string"
                   }
                 }
               }
@@ -177,6 +165,36 @@
                     },
                     "code": {
                       "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "statusCode",
+                    "error",
+                    "message",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
                     },
                     "error": {
                       "type": "string"

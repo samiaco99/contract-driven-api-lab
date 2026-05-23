@@ -65,7 +65,7 @@ jobs:
         run: |
           TOKEN=$(curl -sf -X POST http://localhost:3000/auth/token \
             -H 'Content-Type: application/json' \
-            -d '{"userId":"ci-schemathesis","role":"admin"}' \
+            -d '{"userId":"alice","password":"alice-password"}' \
             | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
           echo "SCHEMATHESIS_TOKEN=$TOKEN" >> $GITHUB_ENV
 

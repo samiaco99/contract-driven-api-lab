@@ -3,7 +3,7 @@ import { Type, Static } from '@sinclair/typebox';
 export const TokenRequestSchema = Type.Object(
   {
     userId: Type.String({ minLength: 1 }),
-    role: Type.Union([Type.Literal('admin'), Type.Literal('viewer')]),
+    password: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );

@@ -26,10 +26,12 @@
     "@fastify/swagger-ui": "^5.2.6",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@sinclair/typebox": "^0.34.49",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.10.0",
     "fastify": "^5.8.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.1",
     "c8": "^11.0.0",
