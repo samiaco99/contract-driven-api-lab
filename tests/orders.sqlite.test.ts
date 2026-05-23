@@ -4,6 +4,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { buildApp } from '../src/app.js';
 import { SqliteOrderRepository } from '../src/repositories/sqlite-order.repository.js';
+import { seedUsers } from '../src/auth/user-store.js';
 
 describe('Orders API (sqlite)', () => {
   const JWT_SECRET = randomBytes(32).toString('hex');
@@ -12,6 +13,7 @@ describe('Orders API (sqlite)', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
+    await seedUsers(1);
     const issuer = await buildApp({ logger: false, jwtSecret: JWT_SECRET });
     adminToken = (
       await issuer.inject({

@@ -1,8 +1,11 @@
 import { buildApp } from './app.js';
 import { SqliteOrderRepository } from './repositories/sqlite-order.repository.js';
 import { parseConfig } from './config.js';
+import { seedUsers } from './auth/user-store.js';
 
 const config = parseConfig();
+
+await seedUsers();
 
 const repository = new SqliteOrderRepository({
   filename: config.databasePath,

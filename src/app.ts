@@ -6,7 +6,6 @@ import swaggerUi from '@fastify/swagger-ui';
 import jwt from '@fastify/jwt';
 
 import './auth/jwt-types.js';
-import { seedUsers } from './auth/user-store.js';
 import { InMemoryOrderRepository } from './repositories/in-memory-order.repository.js';
 import { OrderRepository } from './repositories/order.repository.js';
 import { createOrderService } from './services/order.service.js';
@@ -94,8 +93,6 @@ export async function buildApp(options: BuildAppOptions = {}) {
     secret: jwtSecret,
     sign: { expiresIn: jwtExpiresIn },
   });
-
-  await seedUsers();
 
   await app.register(swagger, {
     openapi: {

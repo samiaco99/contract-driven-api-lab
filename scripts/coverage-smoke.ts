@@ -6,6 +6,7 @@ import { buildApp } from '../src/app.js';
 import { parseConfig } from '../src/config.js';
 import type { OrderRepository } from '../src/repositories/order.repository.js';
 import { SqliteOrderRepository } from '../src/repositories/sqlite-order.repository.js';
+import { seedUsers } from '../src/auth/user-store.js';
 
 const failingRepository: OrderRepository = {
   async findAll() {
@@ -304,6 +305,7 @@ function exerciseConfig() {
   assert.throws(() => parseConfig({ JWT_SECRET: 'too-short' }));
 }
 
+await seedUsers(1);
 await exerciseDefaultApp();
 await exerciseOperationalPaths();
 await exerciseAuth();

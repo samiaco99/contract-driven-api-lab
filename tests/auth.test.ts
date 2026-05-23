@@ -1,12 +1,17 @@
 import { randomBytes } from 'node:crypto';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 
 import { buildApp } from '../src/app.js';
+import { seedUsers } from '../src/auth/user-store.js';
 
 describe('JWT authentication', () => {
   const JWT_SECRET = randomBytes(32).toString('hex');
   let app: FastifyInstance;
+
+  beforeAll(async () => {
+    await seedUsers(1);
+  });
 
   beforeEach(async () => {
     app = await buildApp({ logger: false, jwtSecret: JWT_SECRET });

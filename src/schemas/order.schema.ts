@@ -52,7 +52,7 @@ export const OrderParamsSchema = Type.Object({
 export type OrderParams = Static<typeof OrderParamsSchema>;
 
 export const PatchOrderBodySchema = Type.Object(
-  { status: Type.Unsafe<OrderStatus>({ type: 'string', enum: ['PENDING', 'PAID', 'CANCELLED'] }) },
+  { status: Type.Unsafe<OrderStatus>({ type: 'string', enum: ORDER_STATUSES }) },
   { additionalProperties: false }
 );
 export type PatchOrderBody = Static<typeof PatchOrderBodySchema>;

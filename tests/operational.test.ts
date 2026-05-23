@@ -1,9 +1,10 @@
 import { randomBytes } from 'node:crypto';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 
 import { buildApp } from '../src/app.js';
 import type { OrderRepository } from '../src/repositories/order.repository.js';
+import { seedUsers } from '../src/auth/user-store.js';
 
 const failingRepository: OrderRepository = {
   async findAll() {
@@ -28,6 +29,10 @@ const failingRepository: OrderRepository = {
 
 describe('Operational hardening', () => {
   let app: FastifyInstance;
+
+  beforeAll(async () => {
+    await seedUsers(1);
+  });
 
   afterEach(async () => {
     await app.close();

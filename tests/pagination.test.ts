@@ -4,6 +4,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { buildApp } from '../src/app.js';
 import { SqliteOrderRepository } from '../src/repositories/sqlite-order.repository.js';
+import { seedUsers } from '../src/auth/user-store.js';
 
 async function seedOrders(app: FastifyInstance, count: number, token: string) {
   for (let i = 0; i < count; i++) {
@@ -23,6 +24,7 @@ describe('Cursor-based pagination on GET /v1/orders', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
+    await seedUsers(1);
     const issuer = await buildApp({ logger: false, jwtSecret: JWT_SECRET });
     adminToken = (
       await issuer.inject({
