@@ -32,15 +32,12 @@ async function close(app: FastifyInstance) {
   await app.close();
 }
 
-async function getToken(
-  app: FastifyInstance,
-  userId: string,
-  role: 'admin' | 'viewer'
-): Promise<string> {
+async function getToken(app: FastifyInstance, userId: 'alice' | 'bob'): Promise<string> {
+  const passwords = { alice: 'alice-password', bob: 'bob-password' } as const;
   const res = await app.inject({
     method: 'POST',
     url: '/auth/token',
-    payload: { userId, role },
+    payload: { userId, password: passwords[userId] },
   });
   return res.json<{ token: string }>().token;
 }
@@ -64,15 +61,15 @@ async function exerciseDefaultApp() {
       200
     );
 
-    const adminToken = await getToken(app, 'smoke-admin', 'admin');
-    const viewerToken = await getToken(app, 'smoke-viewer', 'viewer');
+    const adminToken = await getToken(app, 'alice');
+    const viewerToken = await getToken(app, 'bob');
     const adminHeader = { authorization: `Bearer ${adminToken}` };
     const viewerHeader = { authorization: `Bearer ${viewerToken}` };
 
     const created = await app.inject({
       method: 'POST',
       url: '/v1/orders',
-      payload: { userId: 'smoke-admin', status: 'PAID', total: 42 },
+      payload: { userId: 'alice', status: 'PAID', total: 42 },
       headers: adminHeader,
     });
     assert.equal(created.statusCode, 201);
@@ -130,7 +127,7 @@ async function exerciseOperationalPaths() {
     logger: false,
     hardening: {
       corsOrigins: ['https://client.example'],
-      rateLimit: { max: 1, windowMs: 60_000 },
+      rateLimit: { max: 2, windowMs: 60_000 },
     },
   });
 
@@ -149,7 +146,7 @@ async function exerciseOperationalPaths() {
       204
     );
 
-    const token = await getToken(hardened, 'smoke-user', 'admin');
+    const token = await getToken(hardened, 'alice');
     const authHeader = { authorization: `Bearer ${token}` };
 
     assert.equal(
@@ -170,20 +167,17 @@ async function exerciseOperationalPaths() {
   });
 
   try {
-    const token = await getToken(bodyLimited, 'smoke-user', 'admin');
-
     assert.equal(
       (
         await bodyLimited.inject({
           method: 'POST',
           url: '/v1/orders',
           payload: {
-            userId: 'smoke-user',
+            userId: 'alice',
             status: 'PENDING',
             total: 1,
             filler: 'this payload is too large',
           },
-          headers: { authorization: `Bearer ${token}` },
         })
       ).statusCode,
       413
@@ -204,7 +198,7 @@ async function exerciseAuth() {
     );
 
     // Valid admin token → 200
-    const token = await getToken(app, 'smoke-admin', 'admin');
+    const token = await getToken(app, 'alice');
     assert.equal(
       (
         await app.inject({
@@ -217,13 +211,13 @@ async function exerciseAuth() {
     );
 
     // Viewer cannot POST
-    const viewerToken = await getToken(app, 'smoke-viewer', 'viewer');
+    const viewerToken = await getToken(app, 'bob');
     assert.equal(
       (
         await app.inject({
           method: 'POST',
           url: '/v1/orders',
-          payload: { userId: 'smoke-viewer', status: 'PENDING', total: 5 },
+          payload: { userId: 'bob', status: 'PENDING', total: 5 },
           headers: { authorization: `Bearer ${viewerToken}` },
         })
       ).statusCode,
@@ -257,13 +251,13 @@ async function exerciseSQLite() {
   });
 
   try {
-    const adminToken = await getToken(app, 'sqlite-admin', 'admin');
+    const adminToken = await getToken(app, 'alice');
     const adminHeader = { authorization: `Bearer ${adminToken}` };
 
     const created = await app.inject({
       method: 'POST',
       url: '/v1/orders',
-      payload: { userId: 'sqlite-admin', status: 'CANCELLED', total: 11 },
+      payload: { userId: 'alice', status: 'CANCELLED', total: 11 },
       headers: adminHeader,
     });
     assert.equal(created.statusCode, 201);
