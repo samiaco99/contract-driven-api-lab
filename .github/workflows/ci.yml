@@ -40,6 +40,13 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - run: pip install schemathesis
 
       - name: Start server
@@ -71,6 +78,7 @@ jobs:
           --exclude-method TRACE
           --suppress-health-check all
           --continue-on-failure
+          --generation-database none
           --header "Authorization: Bearer $SCHEMATHESIS_TOKEN"
         env:
           NODE_ENV: test
