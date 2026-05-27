@@ -236,6 +236,33 @@ Then, in another terminal:
 npm run test:contract
 ```
 
+## k6 Performance Tests
+
+The k6 scripts in `k6-performance-lab/tests` call the live API over HTTP. Start
+the API first, then run k6 from another terminal. For local performance runs,
+disable the API rate limiter so 429 responses do not dominate the results.
+
+PowerShell:
+
+```powershell
+$env:JWT_SECRET = "dev-secret-at-least-32-characters"
+$env:RATE_LIMIT_ENABLED = "false"
+npm run dev
+```
+
+Then, in another PowerShell terminal:
+
+```powershell
+k6 run k6-performance-lab/tests/smoke.js
+k6 run k6-performance-lab/tests/load.js
+k6 run k6-performance-lab/tests/spike.js
+k6 run k6-performance-lab/tests/stress.js
+k6 run k6-performance-lab/tests/soak.js
+```
+
+By default, the k6 tests target `http://localhost:3000`. Override that with
+`-e BASE_URL=http://host:port` if the API is running elsewhere.
+
 ## Architecture Notes
 
 ### TypeBox As Contract Source
