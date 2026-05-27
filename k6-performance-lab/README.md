@@ -70,6 +70,8 @@ Validated local baseline:
 - load: passed with 100% checks, 0% failures, p95 around 1-2ms.
 - spike: passed at 200 max VUs with 100% checks, 0% failures, p95 around
   0.8ms.
+- soak: passed with 20 VUs for 30 minutes, 100% checks, 0% failures, p95 around
+  1.14ms.
 
 ## Troubleshooting
 

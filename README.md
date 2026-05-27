@@ -42,6 +42,7 @@ reason about incrementally.
 - Vitest
 - OpenAPI / Swagger UI
 - Schemathesis in CI for contract fuzzing
+- k6 for local performance testing
 
 ## Setup
 
@@ -56,6 +57,12 @@ Start the development server:
 
 ```bash
 npm run dev
+```
+
+With Node 20+, you can also load `.env` directly:
+
+```powershell
+node --env-file=.env --import tsx src/server.ts
 ```
 
 The default server URL is:
@@ -86,6 +93,7 @@ http://localhost:3000/docs/json
 | `JWT_EXPIRES_IN` | `1h` | JWT lifetime passed to `@fastify/jwt` |
 | `BODY_LIMIT_BYTES` | Fastify app default of 1 MiB | Maximum accepted request body size |
 | `CORS_ORIGINS` | unset | Comma-separated list of allowed origins |
+| `RATE_LIMIT_ENABLED` | `true` | Enables/disables rate limiting; useful to set `false` for local contract/performance tooling |
 | `RATE_LIMIT_MAX` | `100` | Max requests per rate-limit window |
 | `RATE_LIMIT_WINDOW_MS` | `60000` | Rate-limit window in milliseconds |
 
@@ -116,6 +124,11 @@ npm run dev
 | `npm run coverage` | Runs a c8 HTTP smoke coverage gate with 80% thresholds |
 | `npm run test:contract` | Runs Schemathesis against a local server on `/docs/json` |
 | `npm run openapi:export` | Writes generated OpenAPI to `openapi.json` |
+| `npm run perf:smoke` | Runs the k6 smoke performance test |
+| `npm run perf:load` | Runs the k6 load performance test |
+| `npm run perf:spike` | Runs the k6 spike performance test |
+| `npm run perf:stress` | Runs the k6 stress performance test |
+| `npm run perf:soak` | Runs the k6 soak performance test |
 
 ## API Examples
 
@@ -182,12 +195,12 @@ curl -X DELETE http://localhost:3000/v1/orders/1 \
 ### Authenticated Requests
 
 All `/v1/*` routes require a JWT bearer token. Issue a token from `/auth/token`
-with either `admin` or `viewer` role:
+with a seeded user's credentials:
 
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:3000/auth/token \
   -H "content-type: application/json" \
-  -d '{"userId":"alice","role":"admin"}' | jq -r .token)
+  -d '{"userId":"alice","password":"alice-password"}' | jq -r .token)
 ```
 
 `admin` can create, patch, and delete orders. `viewer` can read orders.
@@ -240,7 +253,17 @@ npm run test:contract
 
 The k6 scripts in `k6-performance-lab/tests` call the live API over HTTP. Start
 the API first, then run k6 from another terminal. For local performance runs,
-disable the API rate limiter so 429 responses do not dominate the results.
+disable the API rate limiter so the test measures endpoint behavior rather than
+intentionally enforced throttling.
+
+See `k6-performance-lab/README.md` for detailed scenario descriptions,
+troubleshooting, and run guidance.
+
+Bash:
+
+```bash
+JWT_SECRET=dev-secret-at-least-32-characters RATE_LIMIT_ENABLED=false npm run dev
+```
 
 PowerShell:
 
@@ -253,15 +276,32 @@ npm run dev
 Then, in another PowerShell terminal:
 
 ```powershell
-k6 run k6-performance-lab/tests/smoke.js
-k6 run k6-performance-lab/tests/load.js
-k6 run k6-performance-lab/tests/spike.js
-k6 run k6-performance-lab/tests/stress.js
-k6 run k6-performance-lab/tests/soak.js
+npm run perf:smoke
+npm run perf:load
+npm run perf:spike
+npm run perf:stress
+npm run perf:soak
+```
+
+If PowerShell blocks `npm run ...` with an execution policy error for
+`npm.ps1`, use the Windows npm shim:
+
+```powershell
+npm.cmd run perf:smoke
 ```
 
 By default, the k6 tests target `http://localhost:3000`. Override that with
 `-e BASE_URL=http://host:port` if the API is running elsewhere.
+
+Validated local baseline:
+
+| Test | Profile | Result | Failure Rate | p95 |
+| --- | --- | --- | --- | --- |
+| Smoke | 1 VU, 30s | Passed | 0.00% | ~50ms |
+| Load | 20 VUs, 5m | Passed | 0.00% | ~1.2ms |
+| Spike | 200 max VUs, ~3.5m | Passed | 0.00% | ~0.8ms |
+| Stress | 100 max VUs, 10m | Passed | 0.00% | ~0.6ms |
+| Soak | 20 VUs, 30m | Passed | 0.00% | ~1.1ms |
 
 ## Architecture Notes
 
