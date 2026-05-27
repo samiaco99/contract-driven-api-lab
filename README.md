@@ -26,7 +26,7 @@ The goal was not to build a large business domain, but to explore:
 - JWT authentication and authorization
 - operational middleware and health checks
 - SQLite migrations
-- contract fuzzing in CI with Schemathesis
+- non-blocking exploratory contract fuzzing with Schemathesis
 
 The project intentionally evolves from a simple CRUD API toward a more
 production-shaped backend architecture while remaining small enough to study and
@@ -41,7 +41,7 @@ reason about incrementally.
 - better-sqlite3
 - Vitest
 - OpenAPI / Swagger UI
-- Schemathesis in CI for contract fuzzing
+- Schemathesis for exploratory contract fuzzing
 - k6 for local performance testing
 
 ## Setup
@@ -122,7 +122,7 @@ npm run dev
 | `npm run build` | Compiles TypeScript to `dist` |
 | `npm run typecheck` | Runs `tsc --noEmit` |
 | `npm run coverage` | Runs a c8 HTTP smoke coverage gate with 80% thresholds |
-| `npm run test:contract` | Runs Schemathesis against a local server on `/docs/json` |
+| `npm run test:contract` | Runs local Schemathesis fuzzing against `/docs/json` |
 | `npm run openapi:export` | Writes generated OpenAPI to `openapi.json` |
 | `npm run perf:smoke` | Runs the k6 smoke performance test |
 | `npm run perf:load` | Runs the k6 load performance test |
@@ -231,10 +231,11 @@ Current test focus:
 - SQLite migration behavior
 - OpenAPI snapshot regression
 
-CI also runs Schemathesis against a live local server and `/docs/json`. This is
-contract fuzzing: Schemathesis generates requests from the OpenAPI document and
-checks whether the running server behaves consistently with the published
-contract.
+CI also runs Schemathesis as a non-blocking exploratory contract fuzzing step
+against a live local server and `/docs/json`. Schemathesis generates requests
+from the OpenAPI document and reports contract mismatches or edge cases. It is
+currently configured as advisory because some generated scenarios exercise known
+framework/tooling tradeoffs rather than business-critical API regressions.
 
 To run the same contract test locally, start the API first:
 
@@ -248,6 +249,11 @@ Then, in another terminal:
 ```bash
 npm run test:contract
 ```
+
+The CI Schemathesis job fetches a JWT and passes it as an authorization header
+for protected routes. The local npm script does not inject that header
+automatically, so local results are not identical to CI unless you provide an
+equivalent token/header in your Schemathesis command.
 
 ## k6 Performance Tests
 
@@ -303,6 +309,15 @@ Validated local baseline:
 | Stress | 100 max VUs, 10m | Passed | 0.00% | ~0.6ms |
 | Soak | 20 VUs, 30m | Passed | 0.00% | ~1.1ms |
 
+## Known Tradeoffs
+
+- Schemathesis is advisory/non-blocking for now; it is useful for surfacing
+  contract edge cases, but not every generated scenario represents an actionable
+  product regression.
+- k6 baselines are local machine baselines, not production capacity claims.
+- Users are seeded in memory for this lab rather than backed by a full
+  user-management system.
+
 ## Architecture Notes
 
 ### TypeBox As Contract Source
@@ -350,7 +365,7 @@ GitHub Actions runs:
 - c8 HTTP smoke coverage with 80% thresholds
 - OpenAPI export and drift check
 - Production build
-- Schemathesis contract fuzzing against a running local server
+- Non-blocking Schemathesis contract fuzzing against a running local server
 
 ## Docker
 
@@ -361,12 +376,6 @@ docker build -t contract-driven-api-lab .
 ```
 
 Run it:
-
-```bash
-docker run --rm -p 3000:3000 contract-driven-api-lab
-```
-
-The container needs a JWT secret:
 
 ```bash
 docker run --rm -p 3000:3000 \
