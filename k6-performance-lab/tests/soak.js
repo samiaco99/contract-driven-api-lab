@@ -43,13 +43,16 @@ export default function ({ token }) {
     const res = http.get(`${BASE_URL}/v1/orders/1`, buildHeaders(token));
     check(res, { 'GET /v1/orders/:id returns 200 or 404': (r) => r.status === 200 || r.status === 404 });
   } else {
-    const payload = JSON.stringify({ item: 'soak-test-item', quantity: 1 });
+    const payload = JSON.stringify({ userId: ADMIN_CREDS.userId, status: 'PENDING', total: 100 });
     const res = http.post(`${BASE_URL}/v1/orders`, payload, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
+    if (res.status !== 201) {
+      console.error(`POST /v1/orders failed: status=${res.status} body=${res.body}`);
+    }
     check(res, { 'POST /v1/orders returns 201': (r) => r.status === 201 });
   }
 
