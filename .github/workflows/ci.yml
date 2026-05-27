@@ -47,7 +47,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/ci.yml') }}
           restore-keys: ${{ runner.os }}-pip-
 
-      - run: pip install schemathesis
+      - run: pip install schemathesis==4.19.0
 
       - name: Start server
         run: npm run dev &
